@@ -1,40 +1,31 @@
-/*
- * rosserial PubSub Example
- * Prints "hello world!" and toggles led
- */
+#include "Arduino.h"
 
-#include <ros.h>
-#include <std_msgs/String.h>
-#include <std_msgs/Empty.h>
+#define pwmPin1 3 //Pwm pin motor 1
+#define in1 4 //Motor pin 1
+#define in2 5 //Motor pin 2
 
-ros::NodeHandle  nh;
+int vel;
+int setvel = 150; //Set velocity manually
+int maxvel = 255; //Max pwm vel
 
+void setup() {
+  //PWM
+  pinMode(pwmPin1, OUTPUT);
+  
+  pinMode(mla, OUTPUT);
+  pinMode(mlb, OUTPUT);
 
-void messageCb( const std_msgs::Empty& toggle_msg){
-  digitalWrite(13, HIGH-digitalRead(13));   // blink the led
+  // digitalWrite(mla, LOW);
+  // digitalWrite(mlb, LOW);
+  // analogWrite(velmotor, vel);
+
 }
 
-ros::Subscriber<std_msgs::Empty> sub("toggle_led", messageCb );
+void loop () {
+  vel = maxvel;
+  analogWrite(pwmPin1, vel);
 
+  digitalWrite(mla, HIGH);
+  digitalWrite(mlb, LOW);
 
-
-std_msgs::String str_msg;
-ros::Publisher chatter("chatter", &str_msg);
-
-char hello[13] = "blackdiff";
-
-void setup()
-{
-  pinMode(13, OUTPUT);
-  nh.initNode();
-  nh.advertise(chatter);
-  nh.subscribe(sub);
-}
-
-void loop()
-{
-  str_msg.data = hello;
-  chatter.publish( &str_msg );
-  nh.spinOnce();
-  delay(500);
 }
