@@ -9,23 +9,14 @@ int setvel = 150; //Set velocity manually
 int maxvel = 255; //Max pwm vel
 
 void setup() {
-  //PWM
   pinMode(pwmPin1, OUTPUT);
-  
-  pinMode(mla, OUTPUT);
-  pinMode(mlb, OUTPUT);
-
-  // digitalWrite(mla, LOW);
-  // digitalWrite(mlb, LOW);
-  // analogWrite(velmotor, vel);
-
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
 }
 
 void loop () {
   vel = maxvel;
   analogWrite(pwmPin1, vel);
-
-  digitalWrite(mla, HIGH);
-  digitalWrite(mlb, LOW);
-
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
 }
