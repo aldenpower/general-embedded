@@ -1,89 +1,90 @@
 #include "Arduino.h"
 
-int e1d = 4;
-int e1p = 3;
-int e2d = 6;
-int e2p = 5;
-int e3d = 10;
-int e3p = 9;
-int e4d = 12;
-int e4p = 11;
-int temp_data;
-char identifier;
-float zero = 0.0;
-int rmotor_callback(int powerlevel) {
+#define pwmPin1 3 //Pwm pin motor 1
+#define in1 4 //Motor pin 1
+#define in2 5 //Motor pin 2
 
-  //move right motors at powerlevel given
-  //direction
-  if (powerlevel < zero) {
-    //set front right motor to forwards
-    digitalWrite(e1d, 1);
-    //set back right motor to backwards
-    digitalWrite(e3d, 0);
-  } else {
-    //set front right motor to backwards
-    digitalWrite(e1d, 0);
-    //set back right motor to forwards
-    digitalWrite(e3d, 1);
-  }
-  //set powerlevels
-  analogWrite(e1p, powerlevel);
-  analogWrite(e3p, powerlevel);
-  return 1;
+const byte numBytes = 32;
+byte receivedBytes[numBytes];
+bool newData = false;
+byte numReceived = 0; 
+
+int read;
+void receiveData();
+void parseReceivedData();
+
+void rmotor_callback(int powerlevel) {
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  analogWrite(pwmPin1, powerlevel);
 };
-
-int lmotor_callback(int powerlevel) {
-
-  //move left motors at powerlevel given
-  //direction
-  if (powerlevel < zero) {
-    //set front left motor to forwards
-    digitalWrite(e2d, 1);
-    //set back left motor to backwards
-    digitalWrite(e4d, 0);
-    analogWrite(e2p, 255-powerlevel);
-    analogWrite(e4p, 255-powerlevel);
-  } else {
-    //set front left motor to backwards
-    digitalWrite(e2d, 0);
-    //set back left motor to forwards
-    digitalWrite(e4d, 1);
-    analogWrite(e2p, powerlevel);
-    analogWrite(e4p, powerlevel);
-  }
-  //set powerlevels
-  
-  return 1;
-}
 
 
 void setup()
 {
   // initialize serial:
   Serial.begin(9600);
-  pinMode(e1d, OUTPUT);
-  pinMode(e2d, OUTPUT);
-  pinMode(e3d, OUTPUT);
-  pinMode(e4d, OUTPUT);
 }
+
+
 
 void loop()
 {
-  if(Serial.available()) {
-    temp_data = Serial.parseInt();
-    //Serial.println(temp_data);
-    identifier = Serial.read();
-    if (identifier == 'r') {
-      Serial.println("r");     
-      rmotor_callback(temp_data);
-    }
-    if (identifier == 'l') {
-      Serial.println("l");
-      lmotor_callback(temp_data);
-    }
-    else {
-      delay(100);
-    }
-  }
+  receiveData();
+  parseReceivedData();
+  // if(Serial.available() > 0) {
+  //   Serial.println("Dado Lido");
+  //   read = Serial.read();
+  //   Serial.println(read);
+
+  //   rmotor_callback(read);
+  // }
     
+}
+
+void receiveData() {
+  static boolean recvInProgress = false;
+  static byte ndx = 0;
+  byte startMarker = 0x3C;
+  byte endMarker = 0x3E;
+  byte rb;
+
+  while (Serial.available() > 0 && newData == false) {
+          rb = Serial.read();
+
+          if (recvInProgress == true) {
+              if (rb != endMarker) {
+                  receivedBytes[ndx] = rb;
+                  ndx++;
+                  if (ndx >= numBytes) {
+                      ndx = numBytes - 1;
+                  }
+              }
+              else {
+                  receivedBytes[ndx] = '\0'; // terminate the string
+                  recvInProgress = false;
+                  numReceived = ndx;  // save the number for use when printing
+                  ndx = 0;
+                  newData = true;
+              }
+          }
+
+          else if (rb == startMarker) {
+              recvInProgress = true;
+          }
+      }
+}
+
+void parseReceivedData() {
+    if (newData == true) {
+        // Serial.print("This just in (DEC values)... ");
+        for (byte n = 0; n < numReceived; n++) {
+            Serial.print(receivedBytes[n], DEC);
+            Serial.print(' ');
+        }
+        int variavel = (receivedBytes[1] << 8) + receivedBytes[0];
+        Serial.print(variavel);
+        rmotor_callback(variavel);
+        newData = false;
+    }
 }
