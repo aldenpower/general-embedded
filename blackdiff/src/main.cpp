@@ -1,4 +1,4 @@
-#include <HCSR04.h> // substituir por newping
+// #include <HCSR04.h> // substituir por newping
 #include <ros.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
@@ -12,18 +12,20 @@
 #define in1_pin 4 
 #define in2_pin 5 
 //RIGHT MOTOR
-#define enb_pin 3 
-#define in3_pin 4 
-#define in4_pin 5 
+// #define enb_pin 3 
+// #define in3_pin 4 
+// #define in4_pin 5 
 //------------------------ DECLARE FUNCTIONS ----------------------------------------------
-void Motor(int Pulse_Width1, int motorPinInput1, int motorPinInput2);
 void MotorTest(int Pulse_Width1, int pwmpin);
 void motors_init();
 void messageCb( const geometry_msgs::Twist& msg);
 //------------------------ VARIABLES ------------------------------------------------------
-double w_r = 0, w_l = 0;
+//MAX BLACKDIFF VEL IN m/s
+double max_speed = 3;
+double left_speed = 0, right_speed = 0;
+double left_speed_percent = 0, right_speed_percent = 0;
 //RADIUS AND SEPARATION WHEELS
-double wheel_rad = 0.07/5, wheel_sep = 0.17; 
+double wheel_rad = 0.034, wheel_sep = 0.17; 
 double speed_ang = 0, speed_lin = 0;
 const long PERIODO = 500;
 unsigned long tempoAnterior = 0;
@@ -40,14 +42,15 @@ ros::Publisher pub_right("right", &right);
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &messageCb );
 //------------------------ CALLBACK ------------------------------------------------------
 void messageCb( const geometry_msgs::Twist& msg){
-  speed_lin = msg.linear.x * 80;
-  speed_ang = msg.angular.z * 80;
+  speed_lin = msg.linear.x;
+  speed_ang = msg.angular.z;
 
-  w_r = (speed_lin / wheel_rad) + ((speed_ang * wheel_sep)/(2.0 * wheel_rad));
-  w_l = (speed_lin / wheel_rad) - ((speed_ang * wheel_sep)/(2.0 * wheel_rad));
+  left_speed = speed_lin - (speed_ang * wheel_sep / 2);
+  right_speed = speed_lin + (speed_ang * wheel_sep / 2);
+
+  left_speed_percent = 100 * left_speed / max_speed;
+  right_speed_percent = 100 * right_speed / max_speed;
 }
-
-// UltraSonicDistanceSensor distanceSensor(4, 2);
 
 void setup () {
     Serial.begin(9600);
@@ -60,52 +63,9 @@ void setup () {
 }
 
 void loop () {
-    // unsigned long tempoAtual = millis();
-    // if (tempoAtual - tempoAnterior >= PERIODO) {
-    //   tempoAnterior = tempoAtual;
-    //   distancia.data = distanceSensor.measureDistanceCm();
-    //   pub_dist.publish(&distancia);
-    // } 
-    
-    if (abs(w_l) < 15)
-    {
-        w_l = 0;
-    }
-    if (abs(w_r)<15)
-    {
-        w_r = 0;
-    }
-    if (w_l>25) // Consertar o sinal, para contemplar os valores negativos.
-    {
-        w_l = 25;    
-    }
-    if (w_r>25)
-    {
-        w_r = 25;    
-    }
-    if (w_l<-25) // Consertar o sinal, para contemplar os valores negativos.
-    {
-        w_l = -25;    
-    }
-    if (w_r<-25)
-    {
-        w_r = -25;    
-    }
-
-    // Motor(w_l * 10, in1_pin, in2_pin);
-    // Motor(w_r * 10, RIGHT_MOTOR_PWM_PIN_1, RIGHT_MOTOR_PWM_PIN_2);
-    MotorTest(w_r * 10, ena_pin);
-    
-    // left.data = (w_l * 10 / 250) * 5;
-    // right.data = (w_r * 10 / 250) * 5;
-
-    // pub_left.publish(&left);
-    // pub_right.publish(&right);
+    MotorTest(left_speed_percent / 100, ena_pin);
     
     nh.spinOnce();
-    
-    // Every 500 miliseconds, do a measurement using the sensor and print the distance in centimeters.
-    //Serial.println(distanceSensor.measureDistanceCm());
 }
 
 
@@ -122,31 +82,7 @@ void motors_init(){
 
 }
 
-void MotorTest(int Pulse_Width1, int pwmpin){
- if (Pulse_Width1 > 0){
-    analogWrite(pwmpin, 255);
- }
- else
- {
-    analogWrite(pwmpin, 0);
- }
- 
- 
-}
-
-
-void Motor(int Pulse_Width1, int motorPinInput1, int motorPinInput2){
- if (Pulse_Width1 > 0){
-    analogWrite(motorPinInput1,Pulse_Width1);
-    analogWrite(motorPinInput2,LOW);
- }
- if (Pulse_Width1 < 0){
-    Pulse_Width1 = abs(Pulse_Width1);
-    analogWrite(motorPinInput1,LOW);
-    analogWrite(motorPinInput2,Pulse_Width1);
- }
-  if (Pulse_Width1 == 0){
-     digitalWrite(motorPinInput1, LOW);
-     digitalWrite(motorPinInput2, LOW);
- }
+void MotorTest(int percent, int pwmpin)
+{
+  analogWrite(pwmpin, percent * 255);
 }
