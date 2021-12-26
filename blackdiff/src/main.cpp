@@ -12,11 +12,11 @@
 #define in1_pin 4 
 #define in2_pin 5 
 //RIGHT MOTOR
-// #define enb_pin 3 
-// #define in3_pin 4 
-// #define in4_pin 5 
+#define enb_pin 6 
+#define in3_pin 8 
+#define in4_pin 7 
 //------------------------ DECLARE FUNCTIONS ----------------------------------------------
-void MotorTest(int Pulse_Width1, int pwmpin);
+void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2);
 void motors_init();
 void messageCb( const geometry_msgs::Twist& msg);
 //------------------------ VARIABLES ------------------------------------------------------
@@ -63,7 +63,7 @@ void setup () {
 }
 
 void loop () {
-    MotorTest(left_speed_percent / 100, ena_pin);
+    MotorTest(left_speed_percent / 100, right_speed_percent / 100, ena_pin, enb_pin);
     
     nh.spinOnce();
 }
@@ -77,12 +77,20 @@ void motors_init(){
     pinMode(in2_pin, OUTPUT);
     pinMode(ena_pin, OUTPUT);
 
+    pinMode(in3_pin, OUTPUT);
+    pinMode(in4_pin, OUTPUT);
+    pinMode(enb_pin, OUTPUT);
+
     digitalWrite(in1_pin, HIGH);
     digitalWrite(in2_pin, LOW);
 
+    digitalWrite(in3_pin, HIGH);
+    digitalWrite(in4_pin, LOW);
+
 }
 
-void MotorTest(int percent, int pwmpin)
+void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2)
 {
-  analogWrite(pwmpin, percent * 255);
+  analogWrite(pwmpin1, percent1 * 255);
+  analogWrite(pwmpin2, percent2 * 255);
 }
