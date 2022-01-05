@@ -30,7 +30,7 @@ void loop(){
         else
         {
             // add null character to string
-            message_pos[message_pos] = '\0';
+            message[message_pos] = '\0';
             Serial.println(message);
 
             // reset for the next message
