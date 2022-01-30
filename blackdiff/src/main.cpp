@@ -7,25 +7,25 @@
 #include <geometry_msgs/Twist.h>
 
 //------------------------ DECLARE PINS ---------------------------------------------------
-//LEFT MOTOR
-#define ena_pin 3 
-#define in1_pin 4 
-#define in2_pin 5 
 //RIGHT MOTOR
+#define ena_pin 5 
+#define in1_pin 9 
+#define in2_pin 8 
+//LEFT MOTOR
 #define enb_pin 6 
-#define in3_pin 8 
-#define in4_pin 7 
+#define in3_pin 4 
+#define in4_pin 3 
 //------------------------ DECLARE FUNCTIONS ----------------------------------------------
 void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2);
 void motors_init();
 void messageCb( const geometry_msgs::Twist& msg);
 //------------------------ VARIABLES ------------------------------------------------------
 //MAX BLACKDIFF VEL IN m/s
-double max_speed = 3;
+double max_speed = 2;
 double left_speed = 0, right_speed = 0;
 double left_speed_percent = 0, right_speed_percent = 0;
 //RADIUS AND SEPARATION WHEELS
-double wheel_rad = 0.034, wheel_sep = 0.17; 
+double wheel_rad = 0.034, wheel_sep = 0.156; 
 double speed_ang = 0, speed_lin = 0;
 const long PERIODO = 500;
 unsigned long tempoAnterior = 0;
@@ -53,7 +53,7 @@ void messageCb( const geometry_msgs::Twist& msg){
 }
 
 void setup () {
-    Serial.begin(9600);
+    // Serial.begin(9600);
     motors_init();
     nh.initNode();
     // nh.advertise(pub_dist);
@@ -64,7 +64,6 @@ void setup () {
 
 void loop () {
     MotorTest(left_speed_percent / 100, right_speed_percent / 100, ena_pin, enb_pin);
-    
     nh.spinOnce();
 }
 
@@ -73,13 +72,13 @@ void loop () {
 
 void motors_init(){
     // LEFT MOTOR
+    pinMode(ena_pin, OUTPUT);
     pinMode(in1_pin, OUTPUT);
     pinMode(in2_pin, OUTPUT);
-    pinMode(ena_pin, OUTPUT);
 
+    pinMode(enb_pin, OUTPUT);
     pinMode(in3_pin, OUTPUT);
     pinMode(in4_pin, OUTPUT);
-    pinMode(enb_pin, OUTPUT);
 
     digitalWrite(in1_pin, HIGH);
     digitalWrite(in2_pin, LOW);
