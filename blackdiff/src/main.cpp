@@ -16,8 +16,8 @@
 #define in3_pin 4 
 #define in4_pin 3
 // SONAR SENSOR
-#define trigger = 2
-#define echo = 7
+#define trigger  2
+#define echo  7
 //Declare functions
 void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2);
 void motors_init();
@@ -29,16 +29,15 @@ double left_speed_percent = 0, right_speed_percent = 0;
 //RADIUS AND SEPARATION WHEELS
 double wheel_rad = 0.034, wheel_sep = 0.156; 
 double speed_ang = 0, speed_lin = 0;
-int distance = 0;
 int max_distance = 500;
-NewPing Sonar(trigger, echo, max_distance)
+NewPing Sonar(trigger, echo, max_distance);
 //ROS objects
 ros::NodeHandle nh;
 std_msgs::Float64 distance;
 std_msgs::Int64 left;
 std_msgs::Int64 right;
 //Publisher
-Publisher pub_dist("distance", &distance);
+ros::Publisher pub_dist("distance", &distance);
 ros::Publisher pub_left("left", &left);
 ros::Publisher pub_right("right", &right);
 //SUbscribers
@@ -69,7 +68,7 @@ void setup () {
 void loop () {
     MotorTest(left_speed_percent, right_speed_percent, ena_pin, enb_pin);
 
-    distance = sonar.ping_cm();
+    distance.data = Sonar.ping_cm();
     pub_dist.publish(&distance);
 
     nh.spinOnce();
