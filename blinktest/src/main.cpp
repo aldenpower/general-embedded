@@ -1,40 +1,72 @@
-// ---------------------------------------------------------------- //
-// Arduino Ultrasoninc Sensor HC-SR04
-// Re-writed by Arbi Abdul Jabbaar
-// Using Arduino IDE 1.8.7
-// Using HC-SR04 Module
-// Tested on 17 September 2019
-// ---------------------------------------------------------------- //
 #include "Arduino.h"
 
-#define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
-#define trigPin 4 //attach pin D3 Arduino to pin Trig of HC-SR04
+//RIGHT MOTOR
+#define ena_pin 5 
+#define in1_pin 9 
+#define in2_pin 8 
+//LEFT MOTOR
+#define enb_pin 6 
+#define in3_pin 4 
+#define in4_pin 3
 
-// defines variables
-long duration; // variable for the duration of sound wave travel
-int distance; // variable for the distance measurement
+int vel;
+int setvel = 200; //Set velocity manually
+int maxvel = 255; //Max pwm vel
 
 void setup() {
-  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
-  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
-  Serial.begin(9600); // // Serial Communication is starting with 9600 of baudrate speed
-  Serial.println("Ultrasonic Sensor HC-SR04 Test"); // print some text in Serial Monitor
-  Serial.println("with Arduino UNO R3");
+  pinMode(ena_pin, OUTPUT);
+  pinMode(in1_pin, OUTPUT);
+  pinMode(in2_pin, OUTPUT);
+
+  pinMode(enb_pin, OUTPUT);
+  pinMode(in3_pin, OUTPUT);
+  pinMode(in4_pin, OUTPUT);
+
 }
-void loop() {
-  // Clears the trigPin condition
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
-  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-  // Displays the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+
+void loop () {
+  delay(2000);
+
+  digitalWrite(in1_pin, HIGH);
+  digitalWrite(in2_pin, LOW);
+
+  digitalWrite(in3_pin, HIGH);
+  digitalWrite(in4_pin, LOW);
+
+  analogWrite(ena_pin, 160);
+  analogWrite(enb_pin, 160);
+
+  delay(2000);
+
+  digitalWrite(in1_pin, HIGH);
+  digitalWrite(in2_pin, LOW);
+
+  digitalWrite(in3_pin, HIGH);
+  digitalWrite(in4_pin, LOW);
+
+  analogWrite(ena_pin, 150);
+  analogWrite(enb_pin, 150);
+
+  delay(2000);
+
+  digitalWrite(in1_pin, HIGH);
+  digitalWrite(in2_pin, LOW);
+
+  digitalWrite(in3_pin, HIGH);
+  digitalWrite(in4_pin, LOW);
+
+  analogWrite(ena_pin, 140);
+  analogWrite(enb_pin, 140);
+
+  delay(2000);
+
+  digitalWrite(in1_pin, HIGH);
+  digitalWrite(in2_pin, LOW);
+
+  digitalWrite(in3_pin, HIGH);
+  digitalWrite(in4_pin, LOW);
+
+  analogWrite(ena_pin, 130);
+  analogWrite(enb_pin, 130);
+  
 }

@@ -19,11 +19,11 @@
 #define trigger  2
 #define echo  7
 //Declare functions
-void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2);
+void MotorTest(float percent1, float percent2, int pwmpin1, int pwmpin2);
 void motors_init();
 void messageCb( const geometry_msgs::Twist& msg);
 //Variables and objects
-double max_speed = 2;
+double max_speed = 0.47;
 double left_speed = 0, right_speed = 0;
 double left_speed_percent = 0, right_speed_percent = 0;
 //RADIUS AND SEPARATION WHEELS
@@ -95,8 +95,29 @@ void motors_init(){
 
 }
 
-void MotorTest(int percent1, int percent2, int pwmpin1, int pwmpin2)
+void MotorTest(float percent1, float percent2, int pwmpin1, int pwmpin2)
 {
-  analogWrite(pwmpin1, percent1 * 255);
-  analogWrite(pwmpin2, percent2 * 255);
+  if (speed_lin > 0)
+  {
+    digitalWrite(in1_pin, HIGH);
+    digitalWrite(in2_pin, LOW);
+
+    digitalWrite(in3_pin, HIGH);
+    digitalWrite(in4_pin, LOW);
+
+    analogWrite(pwmpin1, percent1 * 200);
+    analogWrite(pwmpin2, percent2 * 200);
+    /* code */
+  }
+  if (speed_lin < 0)
+  {
+    digitalWrite(in1_pin, LOW);
+    digitalWrite(in2_pin, HIGH);
+
+    digitalWrite(in3_pin, LOW);
+    digitalWrite(in4_pin, HIGH);
+
+    analogWrite(pwmpin1, round(abs(percent1) * 200));
+    analogWrite(pwmpin2, round(abs(percent2) * 200));
+  }
 }
